@@ -2,7 +2,7 @@ package Bio::Tools::DNAGen;
 use 5.006;
 use strict;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use XSLoader;
 XSLoader::load 'Bio::Tools::DNAGen';
@@ -46,6 +46,7 @@ sub set_len     { $_[0]->{len} = $_[1] || 10 }
 sub genseq($) {
     $_[0]->{_seqcnt} = 0;
     $_[0]->{_result} = undef;
+    die "Prefix's length is greater than sequence's length\n" if length($_[0]->{prefix}) > $_[0]->{len};
     _genseq($_[0], $_[0]->{prefix});
     grep{$_}split /\n/, $_[0]->{_result};
 }
@@ -129,9 +130,9 @@ Constructor.
 You may specify all the parameters here.
 
  $gen = Bio::Tools::DNAGen->new(
-				gcratio => 50
-				mt => 30
-				limit => 10
+				gcratio => 50,
+				mt => 30,
+				limit => 10,
 				prefix => 'acgt',
 				len => 10,
 				);
@@ -163,7 +164,7 @@ You can give it a specific value, like
 
     $gen->set_mt(30);
 
-or an anonymous array to say a range
+or an array to say a range
 
     $gen->set_mt([20, 30]);
 
@@ -187,7 +188,7 @@ Default is '10'.
 
 Setting for the common prefix of sequences to be generated.
 
-Default is a random prefix composed of qw/a c g t/
+Default is a random prefix of length 4 composed of qw/a c g t/, and all the substrings of prefix's length in generated sequences will be checked for their uniqueness.
 
 =head2 set_limit
 
